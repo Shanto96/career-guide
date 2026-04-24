@@ -35,6 +35,14 @@ text_splitter = CharacterTextSplitter(
     chunk_overlap=200,
     length_function=len,
 )
+embeddings = HuggingFaceEmbeddings()
+def perform_qa(query):
+        
+        db= FAISS.load_local("vector_index", embeddings, allow_dangerous_deserialization=True)
+        retriever = db.as_retriever(search_type="similarity", search_kwargs={"k": 4})
+        rqa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever, return_source_documents=True)
+        result = rqa.invoke(query)
+        return result['result']
 def home():
     return "Flask is working!"
 
