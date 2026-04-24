@@ -17,6 +17,24 @@ from langchain_text_splitters import CharacterTextSplitter
 app = Flask(__name__)
 #hell0 world
 @app.route('/')
+
+ ✅ RetrievalQA replaced with modern LCEL chain
+def create_retrieval_chain(vectorstore, llm, prompt):
+    retriever = vectorstore.as_retriever()
+    chain = (
+        {"context": retriever, "question": RunnablePassthrough()}
+        | prompt
+        | llm
+        | StrOutputParser()
+    )
+    return chain
+
+text_splitter = CharacterTextSplitter(
+    separator='\n',
+    chunk_size=2000,
+    chunk_overlap=200,
+    length_function=len,
+)
 def home():
     return "Flask is working!"
 
