@@ -1,56 +1,376 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resume Analysis Results</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/framer-motion@10.12.16/dist/framer-motion.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume Analysis — KS Analytics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #080b14;
+      --bg2:      #0d1120;
+      --surface:  #111827;
+      --surface2: #161f30;
+      --border:   #1f2a3c;
+      --teal:     #0ef2c8;
+      --teal-dim: rgba(14,242,200,0.1);
+      --blue:     #3b82f6;
+      --text:     #e8edf5;
+      --muted:    #6b7a96;
+      --muted2:   #9aa3b8;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(14,242,200,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(14,242,200,0.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none; z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 10% 10%, rgba(14,242,200,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 90% 90%, rgba(59,130,246,0.06) 0%, transparent 60%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: relative; z-index: 10;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.4rem 3rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(8,11,20,0.8);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem;
+      color: var(--text); text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--teal), var(--blue));
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+
+    .nav-actions { display: flex; gap: 10px; }
+
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted2); font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.82rem; font-weight: 500;
+      padding: 7px 16px; border-radius: 100px;
+      text-decoration: none; cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-ghost:hover { border-color: var(--teal); color: var(--teal); }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, var(--teal), #00b4d8);
+      border: none; border-radius: 100px;
+      color: #050d0b; font-family: 'Syne', sans-serif;
+      font-size: 0.82rem; font-weight: 800;
+      padding: 8px 18px;
+      text-decoration: none; cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(14,242,200,0.3);
+    }
+
+    /* ── Page ── */
+    .page {
+      position: relative; z-index: 1;
+      max-width: 900px; margin: 0 auto;
+      padding: 3rem 2rem 5rem;
+    }
+
+    /* ── Page header ── */
+    .page-header {
+      margin-bottom: 2.5rem;
+      opacity: 0; animation: fadeUp 0.5s 0.05s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .page-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 0.75rem; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--teal); margin-bottom: 0.75rem;
+    }
+
+    .page-eyebrow-line { width: 24px; height: 2px; background: var(--teal); }
+
+    .page-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.4rem; font-weight: 800;
+      letter-spacing: -0.02em; line-height: 1.1;
+      color: var(--text); margin-bottom: 0.5rem;
+    }
+
+    .page-title span { color: var(--teal); }
+
+    .page-sub { font-size: 0.95rem; color: var(--muted); }
+
+    /* ── Sections ── */
+    .sections { display: flex; flex-direction: column; gap: 1rem; }
+
+    .section-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px; overflow: hidden;
+      opacity: 0; animation: fadeUp 0.45s ease forwards;
+    }
+
+    .section-card:nth-child(1) { animation-delay: 0.1s; }
+    .section-card:nth-child(2) { animation-delay: 0.18s; }
+    .section-card:nth-child(3) { animation-delay: 0.26s; }
+    .section-card:nth-child(4) { animation-delay: 0.34s; }
+    .section-card:nth-child(5) { animation-delay: 0.42s; }
+    .section-card:nth-child(6) { animation-delay: 0.5s; }
+
+    .section-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 1.1rem 1.5rem;
+      cursor: pointer; user-select: none;
+      border-bottom: 1px solid transparent;
+      transition: background 0.2s;
+    }
+
+    .section-header:hover { background: rgba(255,255,255,0.02); }
+    .section-header.open-header { border-bottom-color: var(--border); }
+
+    .section-icon {
+      width: 36px; height: 36px; flex-shrink: 0;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem; font-weight: 700; flex: 1;
+    }
+
+    .toggle-arrow { color: var(--muted); transition: transform 0.3s; }
+    .toggle-arrow.open { transform: rotate(180deg); }
+
+    .section-body {
+      padding: 1.4rem 1.5rem;
+      font-size: 0.93rem; line-height: 1.8;
+      color: var(--muted2);
+      display: none;
+    }
+
+    .section-body.open { display: block; }
+    .section-body p { margin-bottom: 0.6rem; }
+    .section-body p:last-child { margin-bottom: 0; }
+
+    .section-body ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+
+    .section-body ul li {
+      display: flex; gap: 10px; align-items: flex-start;
+      padding: 8px 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .section-body ul li::before {
+      content: '▸';
+      color: var(--teal); font-size: 0.7rem;
+      margin-top: 4px; flex-shrink: 0;
+    }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .tag {
+      background: rgba(14,242,200,0.08);
+      border: 1px solid rgba(14,242,200,0.18);
+      color: var(--teal);
+      font-size: 0.8rem; font-weight: 500;
+      padding: 4px 13px; border-radius: 100px;
+    }
+
+    /* ── Raw fallback ── */
+    .raw-block {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 18px; padding: 2rem;
+      color: var(--muted2); line-height: 1.85;
+      white-space: pre-wrap; font-size: 0.9rem;
+      opacity: 0; animation: fadeUp 0.5s 0.1s ease forwards;
+    }
+
+    /* ── Color themes ── */
+    .c-teal  .section-icon { background: rgba(14,242,200,0.1); border: 1px solid rgba(14,242,200,0.2); }
+    .c-blue  .section-icon { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); }
+    .c-amber .section-icon { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2); }
+    .c-pink  .section-icon { background: rgba(244,114,182,0.1); border: 1px solid rgba(244,114,182,0.2); }
+    .c-indigo .section-icon { background: rgba(129,140,248,0.1); border: 1px solid rgba(129,140,248,0.2); }
+    .c-orange .section-icon { background: rgba(251,146,60,0.1); border: 1px solid rgba(251,146,60,0.2); }
+
+    .c-teal   .section-title { color: #0ef2c8; }
+    .c-blue   .section-title { color: #60a5fa; }
+    .c-amber  .section-title { color: #fbbf24; }
+    .c-pink   .section-title { color: #f472b6; }
+    .c-indigo .section-title { color: #a5b4fc; }
+    .c-orange .section-title { color: #fb923c; }
+
+    .c-teal   .section-header { border-left: 3px solid rgba(14,242,200,0.5); }
+    .c-blue   .section-header { border-left: 3px solid rgba(59,130,246,0.5); }
+    .c-amber  .section-header { border-left: 3px solid rgba(251,191,36,0.5); }
+    .c-pink   .section-header { border-left: 3px solid rgba(244,114,182,0.5); }
+    .c-indigo .section-header { border-left: 3px solid rgba(129,140,248,0.5); }
+    .c-orange .section-header { border-left: 3px solid rgba(251,146,60,0.5); }
+
+    @media (max-width: 640px) {
+      nav { padding: 1.1rem 1.25rem; }
+      .page { padding: 2rem 1.25rem 4rem; }
+      .page-title { font-size: 1.8rem; }
+    }
+  </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen flex items-center justify-center p-4">
-    <div id="container" class="bg-white rounded-xl shadow-2xl p-8 max-w-4xl w-full">
-        <h1 class="text-4xl font-bold mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400">Resume Analysis Results</h1>
-        <div id="result" class="bg-gray-50 rounded-lg p-6 border border-gray-200 overflow-auto max-h-[60vh]">
-            <pre class="text-sm text-gray-700 whitespace-pre-wrap">{{ resume_analysis }}</pre>
-        </div>
-        <div class="mt-8 flex justify-between">
-            <a href="/" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200 ease-in-out transform hover:-translate-y-1 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50">
-                Go Back
-            </a>
-            <a href="/ask" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition duration-200 ease-in-out transform hover:-translate-y-1 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50">
-                Ask a Question
-            </a>
-        </div>
+<body>
+
+  <nav>
+    <a href="/" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      KS Analytics
+    </a>
+    <div class="nav-actions">
+      <a href="/" class="btn-ghost">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Upload New
+      </a>
+      <a href="/ask" class="btn-primary">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
+        Ask Questions
+      </a>
+    </div>
+  </nav>
+
+  <div class="page">
+    <div class="page-header">
+      <div class="page-eyebrow">
+        <span class="page-eyebrow-line"></span>
+        Analysis Complete
+      </div>
+      <h1 class="page-title">Resume <span>Breakdown</span></h1>
+      <p class="page-sub">Your resume has been analysed. Explore each section below.</p>
     </div>
 
-    <script>
-        const { motion } = window.Motion;
+    <div class="sections" id="sectionsContainer">
+      <!-- Populated by JS -->
+    </div>
+  </div>
 
-        const container = document.getElementById('container');
-        const result = document.getElementById('result');
-        const links = document.querySelectorAll('a');
+  <script>
+    const RAW = {{ resume_analysis | tojson }};
 
-        motion(container, {
-            initial: { opacity: 0, y: 50 },
-            animate: { opacity: 1, y: 0 },
-            transition: { duration: 0.5, ease: "easeOut" }
-        });
+    const DEFS = [
+      { keys: ['summary','overview','objective','profile','about','career objective'], icon:'👤', color:'c-teal',   label:'Summary' },
+      { keys: ['skill','expertise','technical','technology','tools','stack','competenc'], icon:'⚡', color:'c-blue',   label:'Skills' },
+      { keys: ['experience','work','employment','professional','position','career','job'], icon:'💼', color:'c-indigo', label:'Experience' },
+      { keys: ['education','degree','university','college','academic','study'],          icon:'🎓', color:'c-amber',  label:'Education' },
+      { keys: ['achievement','award','accomplishment','certification','honor'],          icon:'🏆', color:'c-orange', label:'Achievements' },
+      { keys: ['project','portfolio','publication'],                                     icon:'🚀', color:'c-pink',   label:'Projects' },
+    ];
 
-        motion(result, {
-            initial: { opacity: 0, scale: 0.95 },
-            animate: { opacity: 1, scale: 1 },
-            transition: { duration: 0.5, delay: 0.2, ease: "easeOut" }
-        });
+    function matchDef(title) {
+      const l = title.toLowerCase();
+      for (const d of DEFS) if (d.keys.some(k => l.includes(k))) return d;
+      return { icon:'📋', color:'c-teal', label: title };
+    }
 
-        links.forEach(link => {
-            motion(link, {
-                whileHover: { scale: 1.05 },
-                whileTap: { scale: 0.95 },
-                transition: { duration: 0.2 }
-            });
-        });
-    </script>
+    function parse(text) {
+      const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+      const sections = []; let cur = null;
+      function flush() { if (cur && cur.lines.length) sections.push(cur); }
+      for (const line of lines) {
+        const clean = line.replace(/\*\*/g,'').replace(/^#+\s*/,'').trim();
+        if (!clean) continue;
+        const isH = /^[\w\s&\/\-]{3,40}:$/.test(clean) || /^[A-Z][A-Z\s&\/\-]{4,}$/.test(clean) || /^\*{2}.+\*{2}:?\s*$/.test(line);
+        if (isH) { flush(); cur = { title: clean.replace(/:$/,'').trim(), lines: [] }; }
+        else { if (!cur) cur = { title:'Analysis', lines:[] }; cur.lines.push(clean); }
+      }
+      flush();
+      return sections.length ? sections : [{ title:'Analysis', lines }];
+    }
+
+    function isSkills(t) { return /skill|tech|tool|stack|competenc/i.test(t); }
+
+    function renderBody(lines, skillSec) {
+      if (skillSec) {
+        const skills = lines.join(' ').split(/[,|•·*\n]/).map(s=>s.trim()).filter(s=>s.length>1&&s.length<50);
+        if (skills.length > 2) return `<div class="tags">${skills.map(s=>`<span class="tag">${s}</span>`).join('')}</div>`;
+      }
+      const bulleted = lines.filter(l=>/^[-*•·▸►]/.test(l)).length > lines.length * 0.5;
+      if (bulleted) {
+        const items = lines.map(l=>l.replace(/^[-*•·▸►]\s*/,'').trim()).filter(Boolean);
+        return `<ul>${items.map(i=>`<li>${i}</li>`).join('')}</ul>`;
+      }
+      return lines.map(l=>`<p>${l}</p>`).join('');
+    }
+
+    function build() {
+      const c = document.getElementById('sectionsContainer');
+      const parsed = parse(RAW);
+      parsed.forEach((sec, i) => {
+        const def = matchDef(sec.title);
+        const card = document.createElement('div');
+        card.className = `section-card ${def.color}`;
+        card.style.animationDelay = `${0.1 + i * 0.08}s`;
+        card.innerHTML = `
+          <div class="section-header open-header" onclick="toggle(this)">
+            <div class="section-icon">${def.icon}</div>
+            <span class="section-title">${sec.title}</span>
+            <svg class="toggle-arrow open" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"/></svg>
+          </div>
+          <div class="section-body open">${renderBody(sec.lines, isSkills(sec.title))}</div>
+        `;
+        c.appendChild(card);
+      });
+    }
+
+    function toggle(hdr) {
+      const body = hdr.nextElementSibling;
+      const arr  = hdr.querySelector('.toggle-arrow');
+      const open = body.classList.contains('open');
+      body.classList.toggle('open', !open);
+      arr.classList.toggle('open', !open);
+      hdr.classList.toggle('open-header', !open);
+    }
+
+    build();
+  </script>
 </body>
 </html>
-

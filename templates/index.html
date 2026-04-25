@@ -1,89 +1,372 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Resume Evaluation</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/framer-motion/dist/framer-motion.js"></script>
-  </head>
-  <body class="min-h-screen bg-white">
-    <main class="max-w-7xl mx-auto min-h-screen flex items-center">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-4 lg:p-8">
-        <!-- Left Content -->
-        <div class="flex flex-col justify-start space-y-6" id="content">
-          <div class="items-end text-xm font-bold text-blue-500">
-            <img
-              src="{{ url_for('static', filename='images/logo.png') }}"
-              alt="Photo"
-              class="h-32"
-            />
-            <h1>KS Analytics</h1>
-          </div>
-          <h1
-            class="text-4xl lg:text-5xl font-bold text-gray-900 leading-tight"
-          >
-            <span class="underline underline-offset-4 decoration-blue-500"
-              >Resume</span
-            >
-            Evaluation & Expert Career Coaching
-          </h1>
-          <p class="text-lg text-gray-600 max-w-xl">
-            Transform your career journey with professional guidance. Upload
-            your resume for expert evaluation and personalized coaching.
-          </p>
-          <form
-            action="/upload"
-            method="POST"
-            enctype="multipart/form-data"
-            class="space-y-4"
-          >
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">
-                Choose a PDF file:
-              </label>
-              <div class="flex items-center space-x-3">
-                <input
-                  type="file"
-                  name="file"
-                  accept=".pdf"
-                  required
-                  class="block w-full text-sm text-gray-500 border-2 max-w-lg py-2 rounded-md file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-slate-100 file:bg-gray-50 file:text-gray-700 file:drop-shadow-sm hover:file:bg-gray-100"
-                />
-              </div>
-            </div>
-            <button
-              type="submit"
-              class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-            >
-              Submit Resume
-            </button>
-          </form>
-        </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KS Analytics — Resume Intelligence</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        <!-- Right Image -->
-        <div class="hidden lg:flex relative justify-start items-center">
-          <img
-            src="https://res.cloudinary.com/dtsuvx8dz/image/upload/v1714291460/nfbn9ltv8fugtboqcxw0.gif"
-            alt="Career coaching illustration"
-            class="w- h- object-cover rounded-xl"
-          />
-          <div class="absolute inset-0"></div>
+    :root {
+      --bg:       #080b14;
+      --bg2:      #0d1120;
+      --surface:  #111827;
+      --border:   #1f2a3c;
+      --teal:     #0ef2c8;
+      --teal-dim: rgba(14,242,200,0.12);
+      --blue:     #3b82f6;
+      --text:     #e8edf5;
+      --muted:    #6b7a96;
+      --muted2:   #9aa3b8;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Background grid ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(14,242,200,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(14,242,200,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── Glow blobs ── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 55% at 5% 15%, rgba(14,242,200,0.07) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 40% at 90% 80%, rgba(59,130,246,0.08) 0%, transparent 65%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: relative; z-index: 10;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.4rem 3rem;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      background: rgba(8,11,20,0.7);
+    }
+
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem;
+      color: var(--text); text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--teal), var(--blue));
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+
+    .nav-pill {
+      background: var(--teal-dim);
+      border: 1px solid rgba(14,242,200,0.2);
+      color: var(--teal);
+      font-size: 0.75rem; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 5px 14px; border-radius: 100px;
+    }
+
+    /* ── Hero layout ── */
+    .hero {
+      position: relative; z-index: 1;
+      max-width: 1180px; margin: 0 auto;
+      min-height: calc(100vh - 68px);
+      display: grid; grid-template-columns: 1fr 1fr;
+      align-items: center; gap: 4rem;
+      padding: 4rem 3rem;
+    }
+
+    /* ── Left column ── */
+    .hero-left { display: flex; flex-direction: column; gap: 2rem; }
+
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 0.78rem; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--teal);
+    }
+
+    .eyebrow-line {
+      width: 28px; height: 2px;
+      background: linear-gradient(90deg, var(--teal), transparent);
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.6rem, 5vw, 4rem);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    h1 .highlight {
+      position: relative;
+      color: var(--teal);
+    }
+
+    h1 .highlight::after {
+      content: '';
+      position: absolute; left: 0; bottom: -4px;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, var(--teal), transparent);
+    }
+
+    .hero-desc {
+      font-size: 1.05rem; line-height: 1.7;
+      color: var(--muted2); max-width: 480px;
+    }
+
+    /* ── Upload card ── */
+    .upload-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+    }
+
+    .upload-card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--muted); margin-bottom: 1.25rem;
+    }
+
+    .file-drop {
+      border: 2px dashed var(--border);
+      border-radius: 14px;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      margin-bottom: 1.25rem;
+      position: relative;
+    }
+
+    .file-drop:hover, .file-drop.drag {
+      border-color: var(--teal);
+      background: var(--teal-dim);
+    }
+
+    .file-drop input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+
+    .drop-icon {
+      width: 48px; height: 48px;
+      background: rgba(14,242,200,0.08);
+      border: 1px solid rgba(14,242,200,0.2);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1rem;
+    }
+
+    .drop-title {
+      font-weight: 600; font-size: 0.95rem; color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .drop-sub { font-size: 0.8rem; color: var(--muted); }
+
+    .file-name-display {
+      font-size: 0.82rem; color: var(--teal);
+      margin-top: 8px; min-height: 18px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--teal) 0%, #00b4d8 100%);
+      border: none; border-radius: 12px;
+      color: #050d0b;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.95rem; font-weight: 800;
+      padding: 0.95rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+      letter-spacing: 0.02em;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 36px rgba(14,242,200,0.3);
+      filter: brightness(1.05);
+    }
+
+    .submit-btn:active { transform: translateY(0); }
+
+    /* ── Right column: stats/features ── */
+    .hero-right { display: flex; flex-direction: column; gap: 1.2rem; }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: flex; gap: 1rem; align-items: flex-start;
+      opacity: 0;
+      animation: fadeUp 0.5s ease forwards;
+    }
+
+    .feature-card:nth-child(1) { animation-delay: 0.2s; }
+    .feature-card:nth-child(2) { animation-delay: 0.35s; }
+    .feature-card:nth-child(3) { animation-delay: 0.5s; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .feat-icon {
+      width: 42px; height: 42px; flex-shrink: 0;
+      border-radius: 11px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .feat-icon.teal  { background: rgba(14,242,200,0.1); border: 1px solid rgba(14,242,200,0.2); }
+    .feat-icon.blue  { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); }
+    .feat-icon.amber { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2); }
+
+    .feat-title {
+      font-family: 'Syne', sans-serif; font-weight: 700;
+      font-size: 0.95rem; color: var(--text); margin-bottom: 4px;
+    }
+
+    .feat-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
+
+    /* ── Animate hero-left ── */
+    .hero-left > * {
+      opacity: 0; animation: fadeUp 0.5s ease forwards;
+    }
+    .hero-left > *:nth-child(1) { animation-delay: 0s; }
+    .hero-left > *:nth-child(2) { animation-delay: 0.1s; }
+    .hero-left > *:nth-child(3) { animation-delay: 0.18s; }
+    .hero-left > *:nth-child(4) { animation-delay: 0.26s; }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      nav { padding: 1.2rem 1.5rem; }
+      .hero { grid-template-columns: 1fr; padding: 2.5rem 1.5rem; min-height: auto; gap: 2.5rem; }
+      .hero-right { display: none; }
+      h1 { font-size: 2.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      KS Analytics
+    </a>
+    <span class="nav-pill">AI Career Coach</span>
+  </nav>
+
+  <div class="hero">
+    <!-- Left -->
+    <div class="hero-left">
+      <div class="eyebrow">
+        <span class="eyebrow-line"></span>
+        Resume Intelligence Platform
+      </div>
+
+      <h1>
+        Elevate Your<br/>
+        <span class="highlight">Career</span> With<br/>
+        AI Coaching
+      </h1>
+
+      <p class="hero-desc">
+        Upload your resume and get an instant expert evaluation, structured career insights, and a powerful Q&amp;A interface to query your own experience.
+      </p>
+
+      <div class="upload-card">
+        <div class="upload-card-title">Upload Resume</div>
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+          <div class="file-drop" id="dropZone">
+            <input type="file" name="file" accept=".pdf" required id="fileInput" />
+            <div class="drop-icon">
+              <svg width="22" height="22" fill="none" stroke="#0ef2c8" stroke-width="1.8" viewBox="0 0 24 24">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <div class="drop-title">Drop your PDF here</div>
+            <div class="drop-sub">or click to browse files</div>
+            <div class="file-name-display" id="fileName"></div>
+          </div>
+          <button type="submit" class="submit-btn">
+            <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            Analyse Resume
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Right -->
+    <div class="hero-right">
+      <div class="feature-card">
+        <div class="feat-icon teal">🧠</div>
+        <div>
+          <div class="feat-title">AI-Powered Summary</div>
+          <div class="feat-desc">Get a structured breakdown of your skills, experience, and career trajectory in seconds.</div>
         </div>
       </div>
-    </main>
+      <div class="feature-card">
+        <div class="feat-icon blue">💬</div>
+        <div>
+          <div class="feat-title">Natural Language Q&amp;A</div>
+          <div class="feat-desc">Ask anything about your resume — from skill gaps to tailoring for specific roles.</div>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon amber">📊</div>
+        <div>
+          <div class="feat-title">Section-by-Section Insights</div>
+          <div class="feat-desc">Answers are organised into clean, readable sections — never a wall of text.</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <script>
-      // Simple animation with Framer Motion
-      const content = document.getElementById("content");
-      content.style.opacity = "0";
-      content.style.transform = "translateY(20px)";
+  <script>
+    const input = document.getElementById('fileInput');
+    const display = document.getElementById('fileName');
+    const dropZone = document.getElementById('dropZone');
 
-      window.addEventListener("load", () => {
-        content.style.transition = "all 0.8s ease-out";
-        content.style.opacity = "1";
-        content.style.transform = "translateY(0)";
-      });
-    </script>
-  </body>
+    input.addEventListener('change', () => {
+      if (input.files[0]) display.textContent = '📎 ' + input.files[0].name;
+    });
+
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault(); dropZone.classList.remove('drag');
+      if (e.dataTransfer.files[0]) {
+        input.files = e.dataTransfer.files;
+        display.textContent = '📎 ' + e.dataTransfer.files[0].name;
+      }
+    });
+  </script>
+</body>
 </html>
