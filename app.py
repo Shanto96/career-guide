@@ -18,7 +18,7 @@ app = Flask(__name__)
 #hell0 world
 @app.route('/')
 
- ✅ RetrievalQA replaced with modern LCEL chain
+
 def create_retrieval_chain(vectorstore, llm, prompt):
     retriever = vectorstore.as_retriever()
     chain = (
@@ -43,6 +43,110 @@ def perform_qa(query):
         rqa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever, return_source_documents=True)
         result = rqa.invoke(query)
         return result['result']
+
+        app = Flask(__name__)
+# File upload configuration
+UPLOAD_FOLDER = 'uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+    
+
+
+def extract_text_from_pdf(pdf_path):
+    with open(pdf_path, 'rb') as file:
+        reader = PyPDF2.PdfReader(file)
+        text = ""
+        for page_num in range(len(reader.pages)):
+            text += reader.pages[page_num].extract_text()
+    return text
+
+llm = ChatGoogleGenerativeAI(model="gemma-3-4b-it", google_api_key="AIzaSyCVLIo0w75iNNdGiCE4mufXn0zMMoqhBUc")
+
+
+# check git hub
+
+resume_summary_template = """
+Role: You are an AI Career Coach.
+
+Task: Given the candidate's resume, provide a comprehensive summary that includes the following key aspects:
+
+- Career Objective
+- Skills and Expertise
+- Professional Experience
+- Educational Background
+- Notable Achievements
+
+Instructions:
+Provide a concise summary of the resume, focusing on the candidate's skills, experience, and career trajectory. Ensure the summary is well-structured, clear, and highlights the candidate's strengths in alignment with industry standards.
+
+Requirements:
+{resume}
+
+"""
+
+resume_prompt = PromptTemplate(
+    input_variables=["resume"],
+    template=resume_summary_template,
+)
+resume_analysis_chain = (
+    resume_prompt 
+    | llm 
+    | StrOutputParser()
+)
+app = Flask(__name__)
+# File upload configuration
+UPLOAD_FOLDER = 'uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+    
+
+
+def extract_text_from_pdf(pdf_path):
+    with open(pdf_path, 'rb') as file:
+        reader = PyPDF2.PdfReader(file)
+        text = ""
+        for page_num in range(len(reader.pages)):
+            text += reader.pages[page_num].extract_text()
+    return text
+
+llm = ChatGoogleGenerativeAI(model="gemma-3-4b-it", google_api_key="AIzaSyCVLIo0w75iNNdGiCE4mufXn0zMMoqhBUc")
+
+
+# check git hub
+
+resume_summary_template = """
+Role: You are an AI Career Coach.
+
+Task: Given the candidate's resume, provide a comprehensive summary that includes the following key aspects:
+
+- Career Objective
+- Skills and Expertise
+- Professional Experience
+- Educational Background
+- Notable Achievements
+
+Instructions:
+Provide a concise summary of the resume, focusing on the candidate's skills, experience, and career trajectory. Ensure the summary is well-structured, clear, and highlights the candidate's strengths in alignment with industry standards.
+
+Requirements:
+{resume}
+
+"""
+
+resume_prompt = PromptTemplate(
+    input_variables=["resume"],
+    template=resume_summary_template,
+)
+resume_analysis_chain = (
+    resume_prompt 
+    | llm 
+    | StrOutputParser()
+)
+
 def home():
     return "Flask is working!"
 
