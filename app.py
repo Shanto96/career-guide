@@ -113,7 +113,7 @@ def extract_text_from_pdf(pdf_path):
             text += reader.pages[page_num].extract_text()
     return text
 
-llm = ChatGoogleGenerativeAI(model="gemma-3-4b-it", google_api_key="AIzaSyCVLIo0w75iNNdGiCE4mufXn0zMMoqhBUc")
+llm = ChatGoogleGenerativeAI(model="gemma-3-4b-it", google_api_key="AIzaSyBzm7-mWrv2NwNmPRg013qhquzMvu9UwcI")
 
 
 # check git hub
@@ -150,6 +150,38 @@ resume_analysis_chain = (
 @app.route("/")
 def index():
     return render_template('index.html')
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return redirect(url_for('index'))
+    
+    file = request.files['file']
+    
+    if file.filename == '':
+        return redirect(url_for('index'))
+    
+    if file:
+        # Save the uploaded file
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+        
+        # Extracted   the  text from the PDF
+        resume_text = extract_text_from_pdf(file_path)
+        splitted_text = text_splitter.split_text(resume_text)
+        vectorstore = FAISS.from_texts(splitted_text, embeddings)
+        vectorstore.save_local("vector_index")
+        
+        
+        
+        
+       
+# print(proposal_text)git r
+        # Run SWOT analysis using the LLM chain
+# ✅ Fix
+        resume_analysis = resume_analysis_chain.invoke({"resume": resume_text})        
+        return render_template('results.html', resume_analysis=resume_analysis)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
