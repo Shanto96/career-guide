@@ -182,6 +182,12 @@ def upload_file():
         resume_analysis = resume_analysis_chain.invoke({"resume": resume_text})        
         return render_template('results.html', resume_analysis=resume_analysis)
 
-
+@app.route('/ask', methods=['GET', 'POST'])
+def ask_query():
+    if request.method == 'POST':
+        query = request.form['query']
+        result = perform_qa(query)
+        return render_template('qa_results.html', query=query, result=result)
+    return render_template('ask.html')
 if __name__ == '__main__':
     app.run(debug=True)
