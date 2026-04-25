@@ -3,3 +3,4 @@ venv/
 uploads/
 vector_index/
 __pycache__/
+.env

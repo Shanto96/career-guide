@@ -1,9 +1,11 @@
-from flask import Flask
 from flask import Flask, request, render_template, redirect, url_for
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 from werkzeug.utils import secure_filename
 import PyPDF2
-
+import google.generativeai as genai
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
@@ -14,10 +16,14 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import CharacterTextSplitter
+from langchain_classic.chains import RetrievalQA
 app = Flask(__name__)
 #hell0 world
-@app.route('/')
 
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+for m in genai.list_models():
+    if 'generateContent' in m.supported_generation_methods:
+        print(f"Model Name: {m.name}")
 
 def create_retrieval_chain(vectorstore, llm, prompt):
     retriever = vectorstore.as_retriever()
@@ -44,7 +50,6 @@ def perform_qa(query):
         result = rqa.invoke(query)
         return result['result']
 
-        app = Flask(__name__)
 # File upload configuration
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -62,7 +67,7 @@ def extract_text_from_pdf(pdf_path):
             text += reader.pages[page_num].extract_text()
     return text
 
-llm = ChatGoogleGenerativeAI(model="gemma-3-4b-it", google_api_key="AIzaSyCVLIo0w75iNNdGiCE4mufXn0zMMoqhBUc")
+llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=os.getenv("GOOGLE_API_KEY"))
 
 
 # check git hub
@@ -113,9 +118,10 @@ def extract_text_from_pdf(pdf_path):
             text += reader.pages[page_num].extract_text()
     return text
 
-llm = ChatGoogleGenerativeAI(model="gemma-3-4b-it", google_api_key="AIzaSyBzm7-mWrv2NwNmPRg013qhquzMvu9UwcI")
 
+llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=os.getenv("GOOGLE_API_KEY"))
 
+#llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash")  # supports system prompts
 # check git hub
 
 resume_summary_template = """
@@ -191,3 +197,4 @@ def ask_query():
     return render_template('ask.html')
 if __name__ == '__main__':
     app.run(debug=True)
+
